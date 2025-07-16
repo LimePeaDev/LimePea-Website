@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LimePea Help</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background-color: #1e1e2f;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+    header {
+      background-color: #111827;
+      padding: 1rem 2rem;
+    }
+    header h1 {
+      color: #00ffc3;
+      margin: 0;
+    }
+    nav {
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+    nav a {
+      display: inline-block;
+      margin: 0 0.75rem;
+      color: #76c7ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+    h2 {
+      color: #00ffc3;
+      border-bottom: 2px solid #00ffc3;
+      padding-bottom: 0.3rem;
+    }
+    h3 {
+      color: #b5f4ec;
+    }
+    ul {
+      margin-left: 1.5rem;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    section {
+      margin-bottom: 3rem;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: #888;
+      font-size: 0.9rem;
+      background-color: #111827;
+    }
+    code {
+      color: #9efff3;
+      background-color: #2e2e3e;
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>LimePea Bot Help</h1>
+    <nav>
+      <a href="index.html">🏠 Home</a>
+      <a href="help.html">📖 Help</a>
+      <a href="download.html">⬇️ Download</a>
+      <a href="support.html">💬 Support Server</a>
+      <a href="policy.html">🔐 Policy</a>
+      <a href="contact.html">📧 Contact</a>
+      <a href="changelog.html">📌 Changelog</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>🌿 Economy</h2>
+      <ul>
+        <li><code>lp!balance</code> — Check your lime balance.</li>
+        <li><code>lp!toplimes</code> — Leaderboard of top lime holders.</li>
+        <li><code>lp!give &lt;@user&gt; &lt;amount&gt;</code> — Give limes to someone.</li>
+        <li><code>lp!daily</code> — Claim your daily limes.</li>
+        <li><code>lime</code> — Type this in reply to a lime drop to claim it!</li>
+        <li><code>lp!forcelimedrop</code> — (Admin) Force a lime drop in the channel.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📈 Stock Market</h2>
+      <ul>
+        <li><code>lp!stock</code> — View available stocks.</li>
+        <li><code>lp!buystock &lt;symbol&gt; &lt;amount&gt;</code> — Buy stock shares.</li>
+        <li><code>lp!sellstock &lt;symbol&gt; &lt;amount&gt;</code> — Sell stock shares.</li>
+        <li><code>lp!portfolio</code> — View your stocks and their value.</li>
+        <li><code>lp!markethistory</code> — See historical stock trends.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🧾 Profile & Customization</h2>
+      <ul>
+        <li><code>lp!profile</code> — View your profile card.</li>
+        <li><code>lp!setdisplayname &lt;name&gt;</code> — Set custom display name (max 12 chars).</li>
+        <li><code>lp!resetdisplayname</code> — Reset display name to default.</li>
+        <li><code>lp!setbackground &lt;id&gt;</code> — Equip a profile background.</li>
+        <li><code>lp!backgroundstore</code> — Show available backgrounds.</li>
+        <li><code>lp!givebadge &lt;user&gt; &lt;badge&gt;</code> — (Owner) Give badge.</li>
+        <li><code>lp!removebadge &lt;user&gt; &lt;badge&gt;</code> — (Owner) Remove badge.</li>
+        <li><code>lp!listbadges &lt;user&gt;</code> — List a user’s badges.</li>
+        <li><code>lp!givebackground &lt;user&gt; &lt;id&gt;</code> — (Owner) Give background.</li>
+        <li><code>lp!removebackground &lt;user&gt; &lt;id&gt;</code> — (Owner) Remove background.</li>
+        <li><code>lp!listbackgrounds &lt;user&gt;</code> — List user's backgrounds.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>📊 Leveling & Stats</h2>
+      <ul>
+        <li><code>lp!leaderboard</code> — Leaderboard of top leveled users.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🛡️ Moderation</h2>
+      <ul>
+        <li><code>lp!warn &lt;user&gt; [reason]</code> — Issue a warning.</li>
+        <li><code>lp!warnings &lt;user ID&gt;</code> — Show warnings for a user.</li>
+        <li><code>lp!unwarn &lt;user ID&gt;</code> — Remove a user’s most recent warning.</li>
+        <li><code>lp!kick &lt;user&gt; [reason]</code> — Kick a user.</li>
+        <li><code>lp!ban &lt;user&gt; [reason]</code> — Ban a user.</li>
+        <li><code>lp!unban &lt;user ID&gt;</code> — Unban a user by ID.</li>
+        <li><code>lp!silence &lt;user&gt; &lt;seconds&gt; [reason]</code> — Timeout a user.</li>
+        <li><code>lp!unsilence &lt;user&gt; [reason]</code> — Remove a timeout.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🎭 Actions</h2>
+      <ul>
+        <li><code>lp!hug &lt;user&gt;</code> — Hug someone.</li>
+        <li><code>lp!cuddle &lt;user&gt;</code> — Cuddle someone.</li>
+        <li><code>lp!slap &lt;user&gt;</code> — Slap someone.</li>
+        <li><code>lp!bite &lt;user&gt;</code> — Bite someone.</li>
+        <li><code>lp!kiss &lt;user&gt;</code> — Kiss someone.</li>
+        <li><code>lp!poke &lt;user&gt;</code> — Poke someone.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>⚙️ Utilities</h2>
+      <ul>
+        <li><code>lp!restart</code> — (Owner) Restart the bot.</li>
+        <li><code>/embed</code> — Create a custom embed. (Slash only)</li>
+        <li><code>lp!sync</code> — (Admin) Sync slash commands.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    LimePea Discord Bot • Built with 💚 • © 2025 LimePea Dev Team
+  </footer>
+</body>
+</html>
