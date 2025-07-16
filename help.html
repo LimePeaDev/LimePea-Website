@@ -93,7 +93,9 @@
         <li><code>lp!toplimes</code> — Leaderboard of top lime holders.</li>
         <li><code>lp!give &lt;@user&gt; &lt;amount&gt;</code> — Give limes to someone.</li>
         <li><code>lp!daily</code> — Claim your daily limes.</li>
-        <li><code>lime</code> — Type this in reply to a lime drop to claim it!</li>
+        <li><code>lp!hourly</code> — Claim your hourly limes.</li>
+        <li><code>lp!job</code> — Do a job for limes.</li>
+        <li><code>lime</code> — Type this when a lime drops to claim it!</li>
         <li><code>lp!forcelimedrop</code> — (Admin) Force a lime drop in the channel.</li>
       </ul>
     </section>
@@ -101,7 +103,7 @@
     <section>
       <h2>📈 Stock Market</h2>
       <ul>
-        <li><code>lp!stock</code> — View available stocks.</li>
+        <li><code>lp!stockmarket</code> — View available stocks.</li>
         <li><code>lp!buystock &lt;symbol&gt; &lt;amount&gt;</code> — Buy stock shares.</li>
         <li><code>lp!sellstock &lt;symbol&gt; &lt;amount&gt;</code> — Sell stock shares.</li>
         <li><code>lp!portfolio</code> — View your stocks and their value.</li>
@@ -113,37 +115,49 @@
       <h2>🧾 Profile & Customization</h2>
       <ul>
         <li><code>lp!profile</code> — View your profile card.</li>
-        <li><code>lp!setdisplayname &lt;name&gt;</code> — Set custom display name (max 12 chars).</li>
+        <li><code>lp!setdisplayname &lt;name&gt;</code> — Set a custom display name.</li>
         <li><code>lp!resetdisplayname</code> — Reset display name to default.</li>
         <li><code>lp!setbackground &lt;id&gt;</code> — Equip a profile background.</li>
-        <li><code>lp!backgroundstore</code> — Show available backgrounds.</li>
-        <li><code>lp!givebadge &lt;user&gt; &lt;badge&gt;</code> — (Owner) Give badge.</li>
-        <li><code>lp!removebadge &lt;user&gt; &lt;badge&gt;</code> — (Owner) Remove badge.</li>
+        <li><code>lp!backgroundstore</code> — View available profile backgrounds.</li>
+        <li><code>lp!givebadge &lt;user&gt; &lt;badge&gt;</code> — (Owner) Give a badge.</li>
+        <li><code>lp!removebadge &lt;user&gt; &lt;badge&gt;</code> — (Owner) Remove a badge.</li>
         <li><code>lp!listbadges &lt;user&gt;</code> — List a user’s badges.</li>
-        <li><code>lp!givebackground &lt;user&gt; &lt;id&gt;</code> — (Owner) Give background.</li>
-        <li><code>lp!removebackground &lt;user&gt; &lt;id&gt;</code> — (Owner) Remove background.</li>
-        <li><code>lp!listbackgrounds &lt;user&gt;</code> — List user's backgrounds.</li>
+        <li><code>lp!givebackground &lt;user&gt; &lt;id&gt;</code> — (Owner) Give a background.</li>
+        <li><code>lp!removebackground &lt;user&gt; &lt;id&gt;</code> — (Owner) Remove a background.</li>
+        <li><code>lp!listbackgrounds &lt;user&gt;</code> — List a user’s owned backgrounds.</li>
       </ul>
     </section>
 
     <section>
       <h2>📊 Leveling & Stats</h2>
       <ul>
-        <li><code>lp!leaderboard</code> — Leaderboard of top leveled users.</li>
+        <li><code>lp!leaderboard</code> — View the top levels leaderboard.</li>
+        <li><code>lp!listlevelroles</code> — View all level-based role rewards.</li>
       </ul>
     </section>
 
     <section>
       <h2>🛡️ Moderation</h2>
       <ul>
-        <li><code>lp!warn &lt;user&gt; [reason]</code> — Issue a warning.</li>
-        <li><code>lp!warnings &lt;user ID&gt;</code> — Show warnings for a user.</li>
-        <li><code>lp!unwarn &lt;user ID&gt;</code> — Remove a user’s most recent warning.</li>
-        <li><code>lp!kick &lt;user&gt; [reason]</code> — Kick a user.</li>
+        <li><code>lp!warn &lt;user&gt; [reason]</code> — Issue a warning to a user.</li>
+        <li><code>lp!warnings &lt;user ID&gt;</code> — View warnings for a user.</li>
+        <li><code>lp!unwarn &lt;user ID&gt;</code> — Remove most recent warning from a user.</li>
+        <li><code>lp!kick &lt;user&gt; [reason]</code> — Kick a user from the server.</li>
         <li><code>lp!ban &lt;user&gt; [reason]</code> — Ban a user.</li>
         <li><code>lp!unban &lt;user ID&gt;</code> — Unban a user by ID.</li>
         <li><code>lp!silence &lt;user&gt; &lt;seconds&gt; [reason]</code> — Timeout a user.</li>
-        <li><code>lp!unsilence &lt;user&gt; [reason]</code> — Remove a timeout.</li>
+        <li><code>lp!unsilence &lt;user&gt; [reason]</code> — Remove a timeout from a user.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🎫 Tickets</h2>
+      <ul>
+        <li><code>lp!ticketpanel</code> — Create a ticket button panel.</li>
+        <li><code>lp!closeticket</code> — Close the current ticket channel.</li>
+        <li><code>lp!ticketsetup &lt;category&gt;</code> — Set up ticket category/channel.</li>
+        <li><code>lp!addreactionrole &lt;msg_id&gt; &lt;emoji&gt; &lt;role&gt;</code> — Add a reaction role.</li>
+        <li><code>lp!removereactionrole &lt;msg_id&gt; &lt;emoji&gt;</code> — Remove a reaction role.</li>
       </ul>
     </section>
 
@@ -164,7 +178,8 @@
       <ul>
         <li><code>lp!restart</code> — (Owner) Restart the bot.</li>
         <li><code>/embed</code> — Create a custom embed. (Slash only)</li>
-        <li><code>lp!sync</code> — (Admin) Sync slash commands.</li>
+        <li><code>/help</code> — Show the bot help menu. (Slash only)</li>
+        <li><code>lp!sync</code> — (Admin) Sync slash commands to server.</li>
       </ul>
     </section>
   </main>
