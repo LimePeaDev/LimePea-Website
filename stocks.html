@@ -4,17 +4,8 @@
   <meta charset="UTF-8" />
   <title>LimePea Stock Viewer</title>
 
-  <!-- Chart.js Core -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Luxon Adapter -->
-  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
-
-  <!-- Financial Charts Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
-
-  <!-- Zoom/Pan Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 
   <style>
@@ -89,19 +80,13 @@
         renderLineChart();
       });
 
-    function getDates(length) {
-      const base = luxon.DateTime.fromISO("2024-01-01");
-      return Array.from({ length }, (_, i) =>
-        base.plus({ days: i }).toISODate()
-      );
-    }
-
     function renderLineChart() {
       const stockNames = Object.keys(stockData);
-      const labels = getDates(stockData[stockNames[0]].history.length);
+      const labels = Array.from({ length: stockData[stockNames[0]].history.length }, (_, i) => i + 1);
+
       const datasets = stockNames.map((ticker, i) => ({
         label: stockData[ticker].name,
-        data: stockData[ticker].history.map((price, idx) => ({ x: labels[idx], y: price })),
+        data: stockData[ticker].history.map((price, idx) => ({ x: idx + 1, y: price })),
         borderColor: colors[i],
         borderWidth: 2,
         pointRadius: 0,
@@ -140,12 +125,15 @@
           },
           scales: {
             x: {
-              type: 'time',
-              time: { unit: 'day' },
+              type: 'linear',
+              title: { display: true, text: 'History Entry #', color: '#aaa' },
               ticks: { color: '#ccc' },
               grid: { color: '#333' }
             },
             y: {
+              min: 0,
+              max: 400,
+              title: { display: true, text: 'Price', color: '#aaa' },
               ticks: { color: '#ccc' },
               grid: { color: '#333' }
             }
@@ -156,12 +144,9 @@
 
     function renderCandlestickChart(ticker) {
       const prices = stockData[ticker].history;
-      const dates = getDates(prices.length);
 
       const candles = prices.map((close, i) => {
         const open = i === 0 ? close : prices[i - 1];
-
-        // Use previous, current, and next values to estimate volatility
         const nearby = [
           prices[i - 1] || close,
           close,
@@ -169,9 +154,8 @@
         ];
         const high = Math.max(...nearby);
         const low = Math.min(...nearby);
-
         return {
-          x: dates[i],
+          x: i + 1,
           o: open,
           h: high,
           l: low,
@@ -214,12 +198,15 @@
           },
           scales: {
             x: {
-              type: 'time',
-              time: { unit: 'day' },
+              type: 'linear',
+              title: { display: true, text: 'History Entry #', color: '#aaa' },
               ticks: { color: '#ccc' },
               grid: { color: '#333' }
             },
             y: {
+              min: 0,
+              max: 400,
+              title: { display: true, text: 'Price', color: '#aaa' },
               ticks: { color: '#ccc' },
               grid: { color: '#333' }
             }
