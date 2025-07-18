@@ -54,22 +54,6 @@
       width: 100%;
       height: 850px !important;
     }
-
-    #candlestickControls {
-      text-align: center;
-      margin-bottom: 1rem;
-      display: none;
-    }
-
-    #stockSelector {
-      padding: 5px;
-      font-size: 1rem;
-    }
-
-    label {
-      font-weight: bold;
-      color: #ccc;
-    }
   </style>
 </head>
 <body>
@@ -83,14 +67,11 @@
       <a href="policy.html">🔐 Policy</a>
       <a href="contact.html">📧 Contact</a>
       <a href="changelog.html">📌 Changelog</a>
+      <a href="stocks.html">📊 Stocks</a>
     </nav>
   </header>
 
   <main>
-    <div id="candlestickControls">
-      <label for="stockSelector">Switch Stock: </label>
-      <select id="stockSelector"></select>
-    </div>
     <canvas id="marketChart"></canvas>
   </main>
 
@@ -168,8 +149,6 @@
           }
         }
       });
-
-      document.getElementById('candlestickControls').style.display = 'none';
     }
 
     function renderCandlestickChart(ticker) {
@@ -190,24 +169,6 @@
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
       const buffer = Math.max(5, Math.round((maxPrice - minPrice) * 0.05));
-
-      const controlDiv = document.getElementById('candlestickControls');
-      const selector = document.getElementById('stockSelector');
-      controlDiv.style.display = 'block';
-
-      if (!selector.dataset.loaded) {
-        selector.innerHTML = '';
-        for (const symbol in stockData) {
-          const opt = document.createElement('option');
-          opt.value = symbol;
-          opt.textContent = stockData[symbol].name;
-          selector.appendChild(opt);
-        }
-        selector.dataset.loaded = "true";
-      }
-
-      selector.value = ticker;
-      selector.onchange = () => renderCandlestickChart(selector.value);
 
       if (marketChart) marketChart.destroy();
 
@@ -257,10 +218,7 @@
               grid: { color: '#333' }
             }
           },
-          onClick: () => {
-            controlDiv.style.display = 'none';
-            renderLineChart();
-          }
+          onClick: () => renderLineChart()
         }
       });
     }
