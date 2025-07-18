@@ -2,47 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Stock Market - LimePea</title>
+  <title>LimePea Stock Viewer</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
+      margin: 0;
       background-color: #1e1e2f;
       color: #e0e0e0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
     }
     header {
-      background-color: #111827;
+      background: #111827;
       padding: 1rem 2rem;
     }
     header h1 {
-      color: #00ffc3;
       margin: 0;
+      color: #00ffc3;
     }
     nav {
       margin-top: 0.5rem;
       text-align: center;
     }
     nav a {
-      display: inline-block;
-      margin: 0 0.75rem;
       color: #76c7ff;
       text-decoration: none;
+      margin: 0 0.75rem;
       font-weight: bold;
     }
     nav a:hover {
       text-decoration: underline;
     }
     main {
-      padding: 2rem;
-      max-width: 1100px;
-      margin: auto;
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
     }
     canvas {
-      background-color: #2a2a3d;
-      border-radius: 12px;
-      padding: 1rem;
+      background: #2a2a3d;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -59,9 +56,8 @@
       <a href="changelog.html">📌 Changelog</a>
     </nav>
   </header>
-
   <main>
-    <canvas id="marketChart" height="300"></canvas>
+    <canvas id="marketChart" height="400"></canvas>
   </main>
 
   <script>
@@ -69,28 +65,24 @@
       '#00ffc3', '#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0',
       '#9966ff', '#ff9f40', '#c9cbcf', '#00b8ff', '#ff6abf'
     ];
-
-    let stockData;
-    let marketChart;
-    let currentMode = "line";
+    let stockData, marketChart;
 
     fetch('stock_history.json')
-      .then(response => response.json())
+      .then(res => res.json())
       .then(data => {
         stockData = data;
         renderLineChart();
       });
 
     function renderLineChart() {
-      currentMode = "line";
       const datasets = Object.entries(stockData).map(([ticker, info], i) => ({
         label: info.name,
         data: info.history,
-        borderColor: colors[i % colors.length],
+        borderColor: colors[i],
         borderWidth: 2,
-        fill: false,
         pointRadius: 0,
-        tension: 0.2
+        tension: 0.3,
+        fill: false
       }));
 
       if (marketChart) marketChart.destroy();
@@ -111,37 +103,30 @@
                 color: '#e0e0e0',
                 usePointStyle: true
               },
-              onClick: (_, legendItem) => {
-                const ticker = Object.keys(stockData)[legendItem.datasetIndex];
-                renderBarChart(ticker);
+              onClick: (_, item) => {
+                const ticker = Object.keys(stockData)[item.datasetIndex];
+                renderStockBars(ticker);
               }
             },
             title: {
               display: true,
-              text: 'All Stocks - Historical Prices',
+              text: 'LimePea Market History',
               color: '#00ffc3',
-              font: {
-                size: 18
-              }
+              font: { size: 18 }
             }
           },
           scales: {
-            x: {
-              ticks: { color: '#ccc' }
-            },
-            y: {
-              ticks: { color: '#ccc' }
-            }
+            x: { ticks: { color: '#ccc' }, grid: { color: '#333' } },
+            y: { ticks: { color: '#ccc' }, grid: { color: '#333' } }
           }
         }
       });
     }
 
-    function renderBarChart(ticker) {
-      currentMode = "bar";
+    function renderStockBars(ticker) {
       const history = stockData[ticker].history;
-      const changes = history.map((value, i) => i === 0 ? 0 : value - history[i - 1]);
-      const barColors = changes.map(change => change >= 0 ? '#00ff88' : '#ff5b5b');
+      const changes = history.map((v, i) => i === 0 ? 0 : v - history[i - 1]);
+      const barColors = changes.map(c => c >= 0 ? '#00ff88' : '#ff5b5b');
 
       if (marketChart) marketChart.destroy();
 
@@ -151,37 +136,40 @@
         data: {
           labels: history.map((_, i) => i + 1),
           datasets: [{
-            label: `${stockData[ticker].name} Daily Change`,
-            data: changes,
-            backgroundColor: barColors
+            label: stockData[ticker].name + ' Price Movement',
+            data: history,
+            backgroundColor: barColors,
+            borderColor: barColors,
+            borderWidth: 1,
+            barThickness: 2,
+            categoryPercentage: 1.0,
+            barPercentage: 1.0
           }]
         },
         options: {
           responsive: true,
           plugins: {
-            legend: {
-              display: false
-            },
+            legend: { display: false },
             title: {
               display: true,
-              text: `${stockData[ticker].name} - Daily Changes`,
+              text: `${stockData[ticker].name} – Price History`,
               color: '#00ffc3',
-              font: {
-                size: 18
-              }
+              font: { size: 18 }
             }
           },
           scales: {
             x: {
-              ticks: { color: '#ccc' }
+              ticks: { color: '#ccc' },
+              grid: { color: '#333' },
+              display: true
             },
             y: {
-              ticks: { color: '#ccc' }
+              ticks: { color: '#ccc' },
+              grid: { color: '#333' },
+              display: true
             }
           },
-          onClick: () => {
-            renderLineChart();
-          }
+          onClick: () => renderLineChart()
         }
       });
     }
