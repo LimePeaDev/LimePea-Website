@@ -43,6 +43,7 @@
       background-color: #2a2a3d;
       padding: 1rem;
       border-radius: 10px;
+      height: 300px !important;
     }
     footer {
       text-align: center;
@@ -61,7 +62,7 @@
     <a href="index.html">🏠 Home</a>
     <a href="help.html">📖 Help</a>
     <a href="download.html">⬇️ Download</a>
-    <a href="support.html">💬 Support Server</a>
+    <a href="support.html">💬 Support</a>
     <a href="policy.html">🔐 Policy</a>
     <a href="contact.html">📧 Contact</a>
     <a href="changelog.html">📌 Changelog</a>
@@ -71,7 +72,7 @@
 
 <main>
   <h2 style="text-align:center;">📊 Stock Market History</h2>
-  <canvas id="stockChart" width="100%" height="60"></canvas>
+  <canvas id="stockChart"></canvas>
 </main>
 
 <footer>
@@ -83,40 +84,43 @@ async function loadChartData() {
   const response = await fetch("https://raw.githubusercontent.com/LimePeaDev/LimePea-Website/main/stock_history.json");
   const stockData = await response.json();
 
-  const timestamps = Object.keys(stockData);
-  const updateNumbers = timestamps.map((_, i) => i + 1); // X-axis: 1, 2, 3...
+  const updates = Object.values(stockData);
+  const updateLabels = updates.map((_, i) => i + 1); // X-axis: update number
 
-  const stockNames = Object.keys(stockData[timestamps[0]]);
-  const datasets = stockNames.map((name, i) => {
-    const color = `hsl(${(i * 360 / stockNames.length)}, 70%, 60%)`;
+  const stockNames = Object.keys(updates[0]);
+
+  const datasets = stockNames.map((stock, i) => {
+    const color = `hsl(${(i * 360 / stockNames.length)}, 80%, 60%)`;
     return {
-      label: name,
-      data: timestamps.map(t => stockData[t][name]),
+      label: stock,
+      data: updates.map(u => u[stock]),
       borderColor: color,
       backgroundColor: color,
       fill: false,
       tension: 0.3,
-      borderWidth: 2,
-      pointRadius: 1
+      pointRadius: 0,
+      borderWidth: 1.5
     };
   });
 
-  new Chart(document.getElementById("stockChart").getContext("2d"), {
-    type: "line",
+  new Chart(document.getElementById('stockChart').getContext('2d'), {
+    type: 'line',
     data: {
-      labels: updateNumbers,
+      labels: updateLabels,
       datasets: datasets
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
-          labels: { color: "#e0e0e0" }
+          labels: { color: "#e0e0e0", boxWidth: 12, font: { size: 12 } },
+          position: "bottom"
         }
       },
       scales: {
         x: {
-          title: { display: true, text: "Update Count", color: "#ccc" },
+          title: { display: true, text: "Update #", color: "#ccc" },
           ticks: { color: "#ccc" },
           grid: { color: "#333" }
         },
