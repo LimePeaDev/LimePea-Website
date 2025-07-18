@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <title>LimePea Stock Viewer</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
   <style>
     body {
@@ -76,10 +78,18 @@
         renderLineChart();
       });
 
+    function getSyntheticDates(length) {
+      const base = luxon.DateTime.fromISO("2024-01-01");
+      return Array.from({ length }, (_, i) =>
+        base.plus({ days: i }).toISODate()
+      );
+    }
+
     function renderLineChart() {
+      const labels = getSyntheticDates(stockData[Object.keys(stockData)[0]].history.length);
       const datasets = Object.entries(stockData).map(([ticker, info], i) => ({
         label: info.name,
-        data: info.history,
+        data: info.history.map((price, idx) => ({ x: labels[idx], y: price })),
         borderColor: colors[i],
         borderWidth: 1.5,
         pointRadius: 0,
@@ -92,10 +102,7 @@
       const ctx = document.getElementById('marketChart').getContext('2d');
       marketChart = new Chart(ctx, {
         type: 'line',
-        data: {
-          labels: stockData[Object.keys(stockData)[0]].history.map((_, i) => i + 1),
-          datasets
-        },
+        data: { labels, datasets },
         options: {
           maintainAspectRatio: false,
           plugins: {
@@ -115,8 +122,16 @@
             }
           },
           scales: {
-            x: { ticks: { color: '#ccc' }, grid: { color: '#333' } },
-            y: { ticks: { color: '#ccc' }, grid: { color: '#333' } }
+            x: {
+              type: 'time',
+              time: { unit: 'day' },
+              ticks: { color: '#ccc' },
+              grid: { color: '#333' }
+            },
+            y: {
+              ticks: { color: '#ccc' },
+              grid: { color: '#333' }
+            }
           }
         }
       });
@@ -124,13 +139,15 @@
 
     function renderStockBarChart(ticker) {
       const prices = stockData[ticker].history;
+      const dates = getSyntheticDates(prices.length);
+
       const data = prices.map((price, i) => {
         const open = i > 0 ? prices[i - 1] : price;
         const close = price;
         const high = Math.max(open, close) + 1;
         const low = Math.min(open, close) - 1;
         return {
-          x: i + 1,
+          x: dates[i],
           o: open,
           h: high,
           l: low,
@@ -167,6 +184,8 @@
           },
           scales: {
             x: {
+              type: 'time',
+              time: { unit: 'day' },
               ticks: { color: '#ccc' },
               grid: { color: '#333' }
             },
