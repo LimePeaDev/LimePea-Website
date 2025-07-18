@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>LimePea Stock Viewer</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
   <style>
     body {
       margin: 0;
@@ -33,14 +34,14 @@
       text-decoration: underline;
     }
     main {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 2rem auto;
       padding: 0 1rem;
     }
     canvas {
       background: #2a2a3d;
       border-radius: 10px;
-      height: 300px !important;
+      height: 400px !important;
     }
   </style>
 </head>
@@ -123,26 +124,34 @@
 
     function renderStockBarChart(ticker) {
       const prices = stockData[ticker].history;
-      const barColors = prices.map((price, i) =>
-        i === 0 ? '#cccccc' : price >= prices[i - 1] ? '#00ff88' : '#ff5b5b'
-      );
+      const data = prices.map((price, i) => {
+        const open = i > 0 ? prices[i - 1] : price;
+        const close = price;
+        const high = Math.max(open, close) + 1;
+        const low = Math.min(open, close) - 1;
+        return {
+          x: i + 1,
+          o: open,
+          h: high,
+          l: low,
+          c: close
+        };
+      });
 
       if (marketChart) marketChart.destroy();
 
       const ctx = document.getElementById('marketChart').getContext('2d');
       marketChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'candlestick',
         data: {
-          labels: prices.map((_, i) => i + 1),
           datasets: [{
-            label: stockData[ticker].name,
-            data: prices,
-            backgroundColor: barColors,
-            borderColor: barColors,
-            borderWidth: 1,
-            barThickness: 2,
-            categoryPercentage: 1.0,
-            barPercentage: 1.0
+            label: `${stockData[ticker].name} Candlestick`,
+            data,
+            color: {
+              up: '#00ff88',
+              down: '#ff5b5b',
+              unchanged: '#cccccc'
+            }
           }]
         },
         options: {
@@ -151,14 +160,20 @@
             legend: { display: false },
             title: {
               display: true,
-              text: `${stockData[ticker].name} — Price Chart`,
+              text: `${stockData[ticker].name} — Candlestick Chart`,
               color: '#00ffc3',
               font: { size: 16 }
             }
           },
           scales: {
-            x: { ticks: { color: '#ccc' }, grid: { color: '#333' }, display: false },
-            y: { ticks: { color: '#ccc' }, grid: { color: '#333' } }
+            x: {
+              ticks: { color: '#ccc' },
+              grid: { color: '#333' }
+            },
+            y: {
+              ticks: { color: '#ccc' },
+              grid: { color: '#333' }
+            }
           },
           onClick: () => renderLineChart()
         }
