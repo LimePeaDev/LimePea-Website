@@ -3,53 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📊 Stock History - LimePea</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>LimePea Stocks</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #1e1e2f;
-      color: #e0e0e0;
+      color: #f0f0f0;
     }
     header {
       background-color: #111827;
       padding: 1rem 2rem;
+      border-bottom: 1px solid #2d2d4a;
     }
     header h1 {
-      color: #00ffc3;
       margin: 0;
+      color: #00ffcc;
     }
     nav {
       margin-top: 0.5rem;
       text-align: center;
     }
     nav a {
-      display: inline-block;
       margin: 0 0.75rem;
       color: #76c7ff;
       text-decoration: none;
-      font-weight: bold;
+      font-weight: 500;
     }
     nav a:hover {
       text-decoration: underline;
     }
     main {
-      max-width: 960px;
+      max-width: 1000px;
       margin: 2rem auto;
-      padding: 0 2rem;
+      padding: 1rem;
     }
     canvas {
       background-color: #2a2a3d;
+      border-radius: 1rem;
       padding: 1rem;
-      border-radius: 10px;
     }
     footer {
       text-align: center;
       padding: 1rem;
-      color: #888;
-      font-size: 0.9rem;
       background-color: #111827;
+      color: #999;
+      font-size: 0.9rem;
+      margin-top: 2rem;
     }
   </style>
 </head>
@@ -61,7 +62,7 @@
     <a href="index.html">🏠 Home</a>
     <a href="help.html">📖 Help</a>
     <a href="download.html">⬇️ Download</a>
-    <a href="support.html">💬 Support Server</a>
+    <a href="support.html">💬 Support</a>
     <a href="policy.html">🔐 Policy</a>
     <a href="contact.html">📧 Contact</a>
     <a href="changelog.html">📌 Changelog</a>
@@ -70,52 +71,69 @@
 </header>
 
 <main>
-  <h2 style="text-align:center;">📊 Stock Market History</h2>
+  <h2 style="text-align:center;">📊 LimePea Stock History</h2>
   <canvas id="stockChart" width="100%" height="60"></canvas>
 </main>
 
 <footer>
-  LimePea Discord Bot • Built with 💚 • © 2025 LimePea Dev Team
+  © 2025 LimePea Bot • Built with 💚
 </footer>
 
 <script>
 async function loadChartData() {
   const response = await fetch("https://raw.githubusercontent.com/LimePeaDev/LimePea-Website/main/stock_history.json");
-  const data = await response.json();
+  const stockData = await response.json();
 
-  const timestamps = Object.keys(data);
-  const stockNames = Object.keys(data[timestamps[0]]);
+  const timestamps = Object.keys(stockData);
+  const stockNames = Object.keys(stockData[timestamps[0]]);
 
-  const datasets = stockNames.map(stock => {
+  const datasets = stockNames.map((stock, i) => {
+    const colorHue = (i * 360 / stockNames.length) % 360;
     return {
       label: stock,
-      data: timestamps.map(t => data[t][stock]),
-      fill: false,
+      data: timestamps.map(t => stockData[t][stock]),
+      borderColor: `hsl(${colorHue}, 80%, 60%)`,
+      backgroundColor: `hsla(${colorHue}, 80%, 60%, 0.15)`,
       tension: 0.3,
+      pointRadius: 2,
       borderWidth: 2,
-      borderColor: `hsl(${Math.random()*360}, 70%, 60%)`
+      fill: false
     };
   });
 
-  const chart = new Chart(document.getElementById("stockChart").getContext("2d"), {
-    type: "line",
+  const ctx = document.getElementById('stockChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
     data: {
       labels: timestamps,
       datasets: datasets
     },
     options: {
-      plugins: {
-        legend: {
-          labels: { color: "#e0e0e0" }
-        }
-      },
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
         x: {
-          ticks: { color: "#aaa" }
+          ticks: { color: '#ccc' },
+          grid: { color: '#333' }
         },
         y: {
-          ticks: { color: "#aaa" }
+          ticks: { color: '#ccc' },
+          grid: { color: '#333' },
+          beginAtZero: true
         }
+      },
+      plugins: {
+        legend: {
+          labels: { color: '#e0e0e0' }
+        },
+        tooltip: {
+          mode: 'nearest',
+          intersect: false
+        }
+      },
+      animation: {
+        duration: 1000,
+        easing: 'easeOutQuart'
       }
     }
   });
