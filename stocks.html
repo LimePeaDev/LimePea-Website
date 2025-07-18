@@ -4,10 +4,18 @@
   <meta charset="UTF-8" />
   <title>LimePea Stock Viewer</title>
 
+  <!-- Chart.js Core -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Luxon Adapter -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+
+  <!-- Financial Charts Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+
+  <!-- Zoom/Pan Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 
   <style>
     body {
@@ -46,7 +54,7 @@
       background: #2a2a3d;
       border-radius: 10px;
       width: 100%;
-      height: 800px !important;
+      height: 850px !important;
     }
   </style>
 </head>
@@ -123,6 +131,11 @@
               text: 'LimePea Market Overview',
               color: '#00ffc3',
               font: { size: 18 }
+            },
+            tooltip: { mode: 'index', intersect: false },
+            zoom: {
+              pan: { enabled: true, mode: 'x', modifierKey: 'ctrl' },
+              zoom: { wheel: { enabled: true }, mode: 'x' }
             }
           },
           scales: {
@@ -147,8 +160,16 @@
 
       const candles = prices.map((close, i) => {
         const open = i === 0 ? close : prices[i - 1];
-        const high = Math.max(open, close) + Math.random() * 5;
-        const low = Math.min(open, close) - Math.random() * 5;
+
+        // Use previous, current, and next values to estimate volatility
+        const nearby = [
+          prices[i - 1] || close,
+          close,
+          prices[i + 1] || close
+        ];
+        const high = Math.max(...nearby);
+        const low = Math.min(...nearby);
+
         return {
           x: dates[i],
           o: open,
@@ -184,6 +205,11 @@
               text: `${stockData[ticker].name} – Candlestick Chart`,
               color: '#00ffc3',
               font: { size: 18 }
+            },
+            tooltip: { mode: 'index', intersect: false },
+            zoom: {
+              pan: { enabled: true, mode: 'x', modifierKey: 'ctrl' },
+              zoom: { wheel: { enabled: true }, mode: 'x' }
             }
           },
           scales: {
