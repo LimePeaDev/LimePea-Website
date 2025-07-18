@@ -2,159 +2,189 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>📊 LimePea Stock Viewer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Market - LimePea</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
+      background-color: #1e1e2f;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      background: #1e1e2f;
-      color: #eee;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 2rem;
+      padding: 0;
+    }
+    header {
+      background-color: #111827;
+      padding: 1rem 2rem;
+    }
+    header h1 {
+      color: #00ffc3;
+      margin: 0;
+    }
+    nav {
+      margin-top: 0.5rem;
       text-align: center;
     }
-    canvas {
-      background: #2a2a3d;
-      border-radius: 10px;
-      padding: 1rem;
-      max-width: 100%;
-    }
-    button {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background: #00ffc3;
-      color: #000;
-      border: none;
-      border-radius: 8px;
+    nav a {
+      display: inline-block;
+      margin: 0 0.75rem;
+      color: #76c7ff;
+      text-decoration: none;
       font-weight: bold;
-      cursor: pointer;
-      display: none;
     }
-    h1 {
-      color: #00ffc3;
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      padding: 2rem;
+      max-width: 1100px;
+      margin: auto;
+    }
+    canvas {
+      background-color: #2a2a3d;
+      border-radius: 12px;
+      padding: 1rem;
     }
   </style>
 </head>
 <body>
+  <header>
+    <h1>LimePea Stock Market</h1>
+    <nav>
+      <a href="index.html">🏠 Home</a>
+      <a href="help.html">📖 Help</a>
+      <a href="download.html">⬇️ Download</a>
+      <a href="support.html">💬 Support</a>
+      <a href="policy.html">🔐 Policy</a>
+      <a href="contact.html">📧 Contact</a>
+      <a href="changelog.html">📌 Changelog</a>
+    </nav>
+  </header>
 
-<h1>📈 LimePea Stock Viewer</h1>
-<canvas id="chart" height="350"></canvas>
-<button id="backBtn">🔙 Back to All Stocks</button>
+  <main>
+    <canvas id="marketChart" height="300"></canvas>
+  </main>
 
-<script>
-const ctx = document.getElementById('chart').getContext('2d');
-const backBtn = document.getElementById('backBtn');
-let stockData, currentChart;
+  <script>
+    const colors = [
+      '#00ffc3', '#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0',
+      '#9966ff', '#ff9f40', '#c9cbcf', '#00b8ff', '#ff6abf'
+    ];
 
-async function loadData() {
-  const res = await fetch('https://raw.githubusercontent.com/LimePeaDev/LimePea-Website/main/stock_history.json');
-  stockData = await res.json();
-  renderLineChart();
-}
+    let stockData;
+    let marketChart;
+    let currentMode = "line";
 
-function renderLineChart() {
-  if (currentChart) currentChart.destroy();
+    fetch('stock_history.json')
+      .then(response => response.json())
+      .then(data => {
+        stockData = data;
+        renderLineChart();
+      });
 
-  const datasets = Object.entries(stockData).map(([ticker, data], i) => {
-    const color = `hsl(${i * 36}, 80%, 60%)`;
-    return {
-      label: data.name,
-      data: data.history,
-      borderColor: color,
-      backgroundColor: color,
-      fill: false,
-      tension: 0.4,
-      borderWidth: 2,
-      pointRadius: 0
-    };
-  });
+    function renderLineChart() {
+      currentMode = "line";
+      const datasets = Object.entries(stockData).map(([ticker, info], i) => ({
+        label: info.name,
+        data: info.history,
+        borderColor: colors[i % colors.length],
+        borderWidth: 2,
+        fill: false,
+        pointRadius: 0,
+        tension: 0.2
+      }));
 
-  const labels = stockData[Object.keys(stockData)[0]].history.map((_, i) => i + 1);
+      if (marketChart) marketChart.destroy();
 
-  currentChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#fff' },
-          onClick: (e, legendItem) => {
-            const ticker = Object.keys(stockData)[legendItem.datasetIndex];
-            renderBarChart(ticker);
+      const ctx = document.getElementById('marketChart').getContext('2d');
+      marketChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: stockData[Object.keys(stockData)[0]].history.map((_, i) => i + 1),
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#e0e0e0',
+                usePointStyle: true
+              },
+              onClick: (_, legendItem) => {
+                const ticker = Object.keys(stockData)[legendItem.datasetIndex];
+                renderBarChart(ticker);
+              }
+            },
+            title: {
+              display: true,
+              text: 'All Stocks - Historical Prices',
+              color: '#00ffc3',
+              font: {
+                size: 18
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#ccc' }
+            },
+            y: {
+              ticks: { color: '#ccc' }
+            }
           }
         }
-      },
-      scales: {
-        x: {
-          title: { display: true, text: "Update #", color: "#ccc" },
-          ticks: { color: "#ccc" },
-          grid: { color: "#333" }
-        },
-        y: {
-          beginAtZero: false,
-          title: { display: true, text: "Price", color: "#ccc" },
-          ticks: { color: "#ccc" },
-          grid: { color: "#333" }
-        }
-      }
+      });
     }
-  });
 
-  backBtn.style.display = "none";
-}
+    function renderBarChart(ticker) {
+      currentMode = "bar";
+      const history = stockData[ticker].history;
+      const changes = history.map((value, i) => i === 0 ? 0 : value - history[i - 1]);
+      const barColors = changes.map(change => change >= 0 ? '#00ff88' : '#ff5b5b');
 
-function renderBarChart(ticker) {
-  if (currentChart) currentChart.destroy();
-  const { history, name } = stockData[ticker];
+      if (marketChart) marketChart.destroy();
 
-  const diffs = history.map((val, i) => i === 0 ? 0 : val - history[i - 1]);
-  const colors = diffs.map(diff => diff >= 0 ? 'green' : 'red');
-
-  currentChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: history.map((_, i) => i + 1),
-      datasets: [{
-        label: `${name} Price Change`,
-        data: diffs,
-        backgroundColor: colors
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          display: true,
-          labels: { color: "#fff" }
-        }
-      },
-      scales: {
-        x: {
-          title: { display: true, text: "Update #", color: "#ccc" },
-          ticks: { color: "#ccc" },
-          grid: { color: "#333" }
+      const ctx = document.getElementById('marketChart').getContext('2d');
+      marketChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: history.map((_, i) => i + 1),
+          datasets: [{
+            label: `${stockData[ticker].name} Daily Change`,
+            data: changes,
+            backgroundColor: barColors
+          }]
         },
-        y: {
-          title: { display: true, text: "Change", color: "#ccc" },
-          ticks: { color: "#ccc" },
-          grid: { color: "#333" }
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            },
+            title: {
+              display: true,
+              text: `${stockData[ticker].name} - Daily Changes`,
+              color: '#00ffc3',
+              font: {
+                size: 18
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#ccc' }
+            },
+            y: {
+              ticks: { color: '#ccc' }
+            }
+          },
+          onClick: () => {
+            renderLineChart();
+          }
         }
-      }
+      });
     }
-  });
-
-  backBtn.style.display = "inline-block";
-}
-
-backBtn.onclick = renderLineChart;
-loadData();
-</script>
-
+  </script>
 </body>
 </html>
