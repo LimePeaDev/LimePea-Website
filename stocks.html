@@ -7,7 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
       background-color: #1e1e2f;
       color: #e0e0e0;
@@ -25,8 +25,7 @@
       text-align: center;
     }
     nav a {
-      display: inline-block;
-      margin: 0 0.75rem;
+      margin: 0 1rem;
       color: #76c7ff;
       text-decoration: none;
       font-weight: bold;
@@ -48,9 +47,9 @@
     footer {
       text-align: center;
       padding: 1rem;
-      color: #888;
       font-size: 0.9rem;
       background-color: #111827;
+      color: #888;
     }
   </style>
 </head>
@@ -71,51 +70,51 @@
 </header>
 
 <main>
-  <h2 style="text-align:center;">📊 Stock Market History</h2>
+  <h2 style="text-align:center;">📈 LimePea Stock Graph</h2>
   <canvas id="stockChart"></canvas>
 </main>
 
 <footer>
-  LimePea Discord Bot • Built with 💚 • © 2025 LimePea Dev Team
+  LimePea Bot • © 2025 Dev Team • Built with 💚
 </footer>
 
 <script>
 async function loadChartData() {
-  const response = await fetch("https://raw.githubusercontent.com/LimePeaDev/LimePea-Website/main/stock_history.json");
-  const stockData = await response.json();
+  const res = await fetch("https://raw.githubusercontent.com/LimePeaDev/LimePea-Website/main/stock_history.json");
+  const raw = await res.json();
 
-  const updates = Object.values(stockData);
-  const updateLabels = updates.map((_, i) => i + 1); // X-axis: update number
+  const updates = Object.values(raw); // array of all stock snapshots
+  const updateCount = updates.map((_, i) => i + 1); // 1, 2, 3...
 
-  const stockNames = Object.keys(updates[0]);
+  const stockNames = Object.keys(updates[0]); // get all stock names
 
-  const datasets = stockNames.map((stock, i) => {
-    const color = `hsl(${(i * 360 / stockNames.length)}, 80%, 60%)`;
+  const datasets = stockNames.map((name, i) => {
+    const hue = (i * 360 / stockNames.length) % 360;
     return {
-      label: stock,
-      data: updates.map(u => u[stock]),
-      borderColor: color,
-      backgroundColor: color,
+      label: name,
+      data: updates.map(snap => snap[name]),
+      borderColor: `hsl(${hue}, 80%, 60%)`,
+      backgroundColor: `hsl(${hue}, 80%, 60%)`,
       fill: false,
-      tension: 0.3,
+      tension: 0.4,
       pointRadius: 0,
-      borderWidth: 1.5
+      borderWidth: 2
     };
   });
 
-  new Chart(document.getElementById('stockChart').getContext('2d'), {
-    type: 'line',
+  new Chart(document.getElementById("stockChart").getContext("2d"), {
+    type: "line",
     data: {
-      labels: updateLabels,
+      labels: updateCount,
       datasets: datasets
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
       plugins: {
         legend: {
-          labels: { color: "#e0e0e0", boxWidth: 12, font: { size: 12 } },
-          position: "bottom"
+          display: true,
+          position: "bottom",
+          labels: { color: "#e0e0e0", font: { size: 12 } }
         }
       },
       scales: {
@@ -125,10 +124,10 @@ async function loadChartData() {
           grid: { color: "#333" }
         },
         y: {
+          beginAtZero: true,
           title: { display: true, text: "Price", color: "#ccc" },
           ticks: { color: "#ccc" },
-          grid: { color: "#333" },
-          beginAtZero: true
+          grid: { color: "#333" }
         }
       }
     }
