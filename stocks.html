@@ -2,52 +2,116 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>LimePea Stocks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📊 Stock History - LimePea</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { background: #1e1e2f; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 2rem; }
-    canvas { background: #2a2a3d; border-radius: 12px; padding: 1rem; max-width: 100%; }
-    h1 { text-align: center; color: #00ffc3; margin-bottom: 2rem; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background-color: #1e1e2f;
+      color: #e0e0e0;
+    }
+    header {
+      background-color: #111827;
+      padding: 1rem 2rem;
+    }
+    header h1 {
+      color: #00ffc3;
+      margin: 0;
+    }
+    nav {
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+    nav a {
+      display: inline-block;
+      margin: 0 0.75rem;
+      color: #76c7ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+    canvas {
+      background-color: #2a2a3d;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: #888;
+      font-size: 0.9rem;
+      background-color: #111827;
+    }
   </style>
 </head>
 <body>
 
-<h1>📊 LimePea Stock History</h1>
-<canvas id="stockChart" height="400"></canvas>
+<header>
+  <h1>LimePea Bot</h1>
+  <nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="help.html">📖 Help</a>
+    <a href="download.html">⬇️ Download</a>
+    <a href="support.html">💬 Support Server</a>
+    <a href="policy.html">🔐 Policy</a>
+    <a href="contact.html">📧 Contact</a>
+    <a href="changelog.html">📌 Changelog</a>
+    <a href="stocks.html">📊 Stocks</a>
+  </nav>
+</header>
+
+<main>
+  <h2 style="text-align:center;">📊 Stock Market History</h2>
+  <canvas id="stockChart" width="100%" height="60"></canvas>
+</main>
+
+<footer>
+  LimePea Discord Bot • Built with 💚 • © 2025 LimePea Dev Team
+</footer>
 
 <script>
 async function loadChartData() {
-  const res = await fetch("https://raw.githubusercontent.com/LimePeaDev/LimePea-Website/main/stock_history.json");
-  const data = await res.json();
+  const response = await fetch("https://raw.githubusercontent.com/LimePeaDev/LimePea-Website/main/stock_history.json");
+  const stockData = await response.json();
 
-  const updates = Object.values(data);
-  const updateLabels = updates.map((_, i) => i + 1);
+  const timestamps = Object.keys(stockData);
+  const updateNumbers = timestamps.map((_, i) => i + 1); // X-axis: 1, 2, 3...
 
-  const stockNames = Object.keys(updates[0]);
-  const datasets = stockNames.map((stock, i) => {
-    const color = `hsl(${(i * 360 / stockNames.length)}, 80%, 60%)`;
+  const stockNames = Object.keys(stockData[timestamps[0]]);
+  const datasets = stockNames.map((name, i) => {
+    const color = `hsl(${(i * 360 / stockNames.length)}, 70%, 60%)`;
     return {
-      label: stock,
-      data: updates.map(entry => entry[stock]),
+      label: name,
+      data: timestamps.map(t => stockData[t][name]),
       borderColor: color,
       backgroundColor: color,
+      fill: false,
       tension: 0.3,
       borderWidth: 2,
-      pointRadius: 0,
-      fill: false
+      pointRadius: 1
     };
   });
 
-  new Chart(document.getElementById('stockChart'), {
-    type: 'line',
+  new Chart(document.getElementById("stockChart").getContext("2d"), {
+    type: "line",
     data: {
-      labels: updateLabels,
-      datasets
+      labels: updateNumbers,
+      datasets: datasets
     },
     options: {
+      responsive: true,
       plugins: {
         legend: {
-          labels: { color: "#fff" }
+          labels: { color: "#e0e0e0" }
         }
       },
       scales: {
@@ -66,6 +130,7 @@ async function loadChartData() {
     }
   });
 }
+
 loadChartData();
 </script>
 
