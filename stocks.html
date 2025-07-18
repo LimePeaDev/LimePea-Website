@@ -20,8 +20,8 @@
       color: #00ffc3;
     }
     nav {
-      margin-top: 0.5rem;
       text-align: center;
+      margin-top: 0.5rem;
     }
     nav a {
       color: #76c7ff;
@@ -33,13 +33,14 @@
       text-decoration: underline;
     }
     main {
-      max-width: 1000px;
+      max-width: 900px;
       margin: 2rem auto;
       padding: 0 1rem;
     }
     canvas {
       background: #2a2a3d;
       border-radius: 10px;
+      height: 300px !important;
     }
   </style>
 </head>
@@ -57,7 +58,7 @@
     </nav>
   </header>
   <main>
-    <canvas id="marketChart" height="400"></canvas>
+    <canvas id="marketChart"></canvas>
   </main>
 
   <script>
@@ -79,7 +80,7 @@
         label: info.name,
         data: info.history,
         borderColor: colors[i],
-        borderWidth: 2,
+        borderWidth: 1.5,
         pointRadius: 0,
         tension: 0.3,
         fill: false
@@ -92,27 +93,24 @@
         type: 'line',
         data: {
           labels: stockData[Object.keys(stockData)[0]].history.map((_, i) => i + 1),
-          datasets: datasets
+          datasets
         },
         options: {
-          responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             legend: {
               position: 'bottom',
-              labels: {
-                color: '#e0e0e0',
-                usePointStyle: true
-              },
+              labels: { color: '#e0e0e0', usePointStyle: true },
               onClick: (_, item) => {
                 const ticker = Object.keys(stockData)[item.datasetIndex];
-                renderStockBars(ticker);
+                renderStockBarChart(ticker);
               }
             },
             title: {
               display: true,
-              text: 'LimePea Market History',
+              text: 'LimePea Market Overview',
               color: '#00ffc3',
-              font: { size: 18 }
+              font: { size: 16 }
             }
           },
           scales: {
@@ -123,10 +121,11 @@
       });
     }
 
-    function renderStockBars(ticker) {
-      const history = stockData[ticker].history;
-      const changes = history.map((v, i) => i === 0 ? 0 : v - history[i - 1]);
-      const barColors = changes.map(c => c >= 0 ? '#00ff88' : '#ff5b5b');
+    function renderStockBarChart(ticker) {
+      const prices = stockData[ticker].history;
+      const barColors = prices.map((price, i) =>
+        i === 0 ? '#cccccc' : price >= prices[i - 1] ? '#00ff88' : '#ff5b5b'
+      );
 
       if (marketChart) marketChart.destroy();
 
@@ -134,10 +133,10 @@
       marketChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: history.map((_, i) => i + 1),
+          labels: prices.map((_, i) => i + 1),
           datasets: [{
-            label: stockData[ticker].name + ' Price Movement',
-            data: history,
+            label: stockData[ticker].name,
+            data: prices,
             backgroundColor: barColors,
             borderColor: barColors,
             borderWidth: 1,
@@ -147,27 +146,19 @@
           }]
         },
         options: {
-          responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
             title: {
               display: true,
-              text: `${stockData[ticker].name} – Price History`,
+              text: `${stockData[ticker].name} — Price Chart`,
               color: '#00ffc3',
-              font: { size: 18 }
+              font: { size: 16 }
             }
           },
           scales: {
-            x: {
-              ticks: { color: '#ccc' },
-              grid: { color: '#333' },
-              display: true
-            },
-            y: {
-              ticks: { color: '#ccc' },
-              grid: { color: '#333' },
-              display: true
-            }
+            x: { ticks: { color: '#ccc' }, grid: { color: '#333' }, display: false },
+            y: { ticks: { color: '#ccc' }, grid: { color: '#333' } }
           },
           onClick: () => renderLineChart()
         }
