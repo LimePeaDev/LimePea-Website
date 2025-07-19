@@ -80,14 +80,17 @@
       '#00ffc3', '#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0',
       '#9966ff', '#ff9f40', '#c9cbcf', '#00b8ff', '#ff6abf'
     ];
-    let stockData, marketChart;
 
-    fetch('stock_history.json')
-      .then(res => res.json())
-      .then(data => {
-        stockData = data;
-        renderLineChart();
-      });
+    let stockData, stockEvents, marketChart;
+
+    Promise.all([
+      fetch('stock_history.json').then(res => res.json()),
+      fetch('stock_events.json').then(res => res.json())
+    ]).then(([data, events]) => {
+      stockData = data;
+      stockEvents = events;
+      renderLineChart();
+    });
 
     function renderLineChart() {
       const stockNames = Object.keys(stockData);
@@ -96,11 +99,40 @@
       const datasets = stockNames.map((ticker, i) => ({
         label: stockData[ticker].name,
         data: stockData[ticker].history.map((price, idx) => ({ x: idx + 1, y: price })),
-        borderColor: colors[i],
+        borderColor: colors[i % colors.length],
         borderWidth: 2,
         pointRadius: 0,
         tension: 0.3
       }));
+
+      // Add event dots
+      const eventDots = stockEvents.map(e => ({
+        x: e.index,
+        y: e.new_price,
+        label: e.description || "Market Event",
+        backgroundColor: e.change > 0 ? '#00ff88' : '#ff5b5b',
+        borderColor: '#000',
+        radius: 6,
+        hoverRadius: 10
+      }));
+
+      datasets.push({
+        type: 'scatter',
+        label: '📌 Market Events',
+        data: eventDots,
+        showLine: false,
+        pointStyle: 'circle',
+        pointBackgroundColor: eventDots.map(e => e.backgroundColor),
+        pointBorderColor: eventDots.map(e => e.borderColor),
+        pointRadius: eventDots.map(e => e.radius),
+        pointHoverRadius: eventDots.map(e => e.hoverRadius),
+        animations: {
+          radius: {
+            duration: 400,
+            easing: 'easeOutBounce'
+          }
+        }
+      });
 
       if (marketChart) marketChart.destroy();
 
@@ -126,7 +158,18 @@
               color: '#00ffc3',
               font: { size: 18 }
             },
-            tooltip: { mode: 'index', intersect: false },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              callbacks: {
+                label: function (ctx) {
+                  if (ctx.dataset.label === '📌 Market Events') {
+                    return `📌 ${ctx.raw.label}`;
+                  }
+                  return `${ctx.dataset.label}: $${ctx.raw.y}`;
+                }
+              }
+            },
             zoom: {
               pan: { enabled: true, mode: 'x', modifierKey: 'ctrl' },
               zoom: { wheel: { enabled: true }, mode: 'x' }
@@ -156,11 +199,7 @@
 
       const candles = prices.map((close, i) => {
         const open = i === 0 ? close : prices[i - 1];
-        const nearby = [
-          prices[i - 1] || close,
-          close,
-          prices[i + 1] || close
-        ];
+        const nearby = [prices[i - 1] || close, close, prices[i + 1] || close];
         const high = Math.max(...nearby);
         const low = Math.min(...nearby);
         return { x: i + 1, o: open, h: high, l: low, c: close };
@@ -170,34 +209,76 @@
       const maxPrice = Math.max(...prices);
       const buffer = Math.max(5, Math.round((maxPrice - minPrice) * 0.05));
 
+      // Add scatter dots to candlestick view too
+      const eventDots = stockEvents
+        .filter(e => e.ticker === ticker)
+        .map(e => ({
+          x: e.index,
+          y: e.new_price,
+          label: e.description || "Market Event",
+          backgroundColor: e.change > 0 ? '#00ff88' : '#ff5b5b',
+          borderColor: '#000',
+          radius: 6,
+          hoverRadius: 10
+        }));
+
       if (marketChart) marketChart.destroy();
 
       const ctx = document.getElementById('marketChart').getContext('2d');
       marketChart = new Chart(ctx, {
         type: 'candlestick',
         data: {
-          datasets: [{
-            label: ${stockData[ticker].name} – Candlestick,
-            data: candles,
-            color: {
-              up: '#00ff88',
-              down: '#ff5b5b',
-              unchanged: '#cccccc'
+          datasets: [
+            {
+              label: `${stockData[ticker].name} – Candlestick`,
+              data: candles,
+              borderColor: {
+                up: '#00ff88',
+                down: '#ff5b5b',
+                unchanged: '#cccccc'
+              },
+              color: {
+                up: '#00ff88',
+                down: '#ff5b5b',
+                unchanged: '#cccccc'
+              }
+            },
+            {
+              type: 'scatter',
+              label: '📌 Market Events',
+              data: eventDots,
+              showLine: false,
+              pointStyle: 'circle',
+              pointBackgroundColor: eventDots.map(e => e.backgroundColor),
+              pointBorderColor: eventDots.map(e => e.borderColor),
+              pointRadius: eventDots.map(e => e.radius),
+              pointHoverRadius: eventDots.map(e => e.hoverRadius)
             }
-          }]
+          ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: false },
+            legend: { position: 'bottom', labels: { color: '#e0e0e0' } },
             title: {
               display: true,
-              text: ${stockData[ticker].name} – Candlestick Chart,
+              text: `${stockData[ticker].name} – Candlestick Chart`,
               color: '#00ffc3',
               font: { size: 18 }
             },
-            tooltip: { mode: 'index', intersect: false },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              callbacks: {
+                label: function (ctx) {
+                  if (ctx.dataset.label === '📌 Market Events') {
+                    return `📌 ${ctx.raw.label}`;
+                  }
+                  return `${ctx.dataset.label}: $${ctx.raw.c || ctx.raw.y}`;
+                }
+              }
+            },
             zoom: {
               pan: { enabled: true, mode: 'x', modifierKey: 'ctrl' },
               zoom: { wheel: { enabled: true }, mode: 'x' }
