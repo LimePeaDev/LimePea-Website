@@ -54,6 +54,37 @@
       width: 100%;
       height: 850px !important;
     }
+
+    #eventModal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #2a2a3d;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+      z-index: 999;
+      color: white;
+      max-width: 90%;
+      width: 400px;
+    }
+
+    #eventModal h3 {
+      margin-top: 0;
+      color: #00ffc3;
+    }
+
+    #eventModal button {
+      margin-top: 10px;
+      background: #ff0077;
+      border: none;
+      padding: 8px 16px;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -75,24 +106,31 @@
     <canvas id="marketChart"></canvas>
   </main>
 
+  <!-- Modal for Event Details -->
+  <div id="eventModal">
+    <h3 id="eventTitle">Market Event</h3>
+    <p id="eventBody"></p>
+    <button onclick="document.getElementById('eventModal').style.display='none'">Close</button>
+  </div>
+
   <script>
     const colors = [
       '#00ffc3', '#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0',
       '#9966ff', '#ff9f40', '#c9cbcf', '#00b8ff', '#ff6abf'
     ];
-    let stockData, marketChart;
+    let stockData, marketChart, stockEvents = [];
 
-    fetch('stock_history.json')
-      .then(res => res.json())
-      .then(data => {
-        stockData = data;
-        renderLineChart();
-      });
+    Promise.all([
+      fetch('stock_history.json').then(res => res.json()),
+      fetch('stock_events.json').then(res => res.json()).catch(() => [])
+    ]).then(([data, events]) => {
+      stockData = data;
+      stockEvents = events;
+      renderLineChart();
+    });
 
     function renderLineChart() {
       const stockNames = Object.keys(stockData);
-      const labels = Array.from({ length: stockData[stockNames[0]].history.length }, (_, i) => i + 1);
-
       const datasets = stockNames.map((ticker, i) => ({
         label: stockData[ticker].name,
         data: stockData[ticker].history.map((price, idx) => ({ x: idx + 1, y: price })),
@@ -101,6 +139,35 @@
         pointRadius: 0,
         tension: 0.3
       }));
+
+      const dotData = stockEvents.map(e => ({
+        x: e.index,
+        y: e.price,
+        event: e.reason || "Market Event",
+        ticker: e.ticker
+      }));
+
+      datasets.push({
+        label: "Market Events",
+        data: dotData,
+        pointBackgroundColor: "#ff0077",
+        pointRadius: 6,
+        pointHoverRadius: 10,
+        showLine: false,
+        type: "scatter",
+        borderWidth: 0,
+        backgroundColor: "#ff0077",
+        pointStyle: "circle",
+        animations: {
+          radius: {
+            duration: 1000,
+            easing: "easeInOutBounce",
+            loop: true,
+            from: 6,
+            to: 10
+          }
+        }
+      });
 
       if (marketChart) marketChart.destroy();
 
@@ -117,7 +184,7 @@
               labels: { color: '#e0e0e0', usePointStyle: true },
               onClick: (_, item) => {
                 const ticker = stockNames[item.datasetIndex];
-                renderCandlestickChart(ticker);
+                if (ticker) renderCandlestickChart(ticker);
               }
             },
             title: {
@@ -126,7 +193,17 @@
               color: '#00ffc3',
               font: { size: 18 }
             },
-            tooltip: { mode: 'index', intersect: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.dataset.label === "Market Events") {
+                    const e = ctx.raw;
+                    return `📌 ${e.event} (${e.ticker || '???'}) – ${e.y}`;
+                  }
+                  return `${ctx.dataset.label}: ${ctx.parsed.y}`;
+                }
+              }
+            },
             zoom: {
               pan: { enabled: true, mode: 'x', modifierKey: 'ctrl' },
               zoom: { wheel: { enabled: true }, mode: 'x' }
@@ -149,22 +226,45 @@
           }
         }
       });
+
+      document.getElementById('marketChart').onclick = (evt) => {
+        const points = marketChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+        if (points.length) {
+          const point = points[0];
+          const dataset = marketChart.data.datasets[point.datasetIndex];
+
+          if (dataset.label === "Market Events") {
+            const e = dataset.data[point.index];
+            document.getElementById("eventTitle").innerHTML = `📌 Market Event on ${e.ticker || 'Unknown'}`;
+            document.getElementById("eventBody").innerHTML = `
+              <strong>Reason:</strong> ${e.event || 'No details'}<br>
+              <strong>Price:</strong> ${e.y}<br>
+              <strong>Entry Index:</strong> ${e.x}
+            `;
+            document.getElementById("eventModal").style.display = "block";
+          }
+        }
+      };
     }
 
     function renderCandlestickChart(ticker) {
       const prices = stockData[ticker].history;
-
       const candles = prices.map((close, i) => {
         const open = i === 0 ? close : prices[i - 1];
-        const nearby = [
-          prices[i - 1] || close,
-          close,
-          prices[i + 1] || close
-        ];
+        const nearby = [prices[i - 1] || close, close, prices[i + 1] || close];
         const high = Math.max(...nearby);
         const low = Math.min(...nearby);
         return { x: i + 1, o: open, h: high, l: low, c: close };
       });
+
+      const eventDots = stockEvents
+        .filter(e => e.ticker === ticker)
+        .map(e => ({
+          x: e.index,
+          y: e.price,
+          event: e.reason || "Market Event",
+          ticker: e.ticker
+        }));
 
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
@@ -184,6 +284,24 @@
               down: '#ff5b5b',
               unchanged: '#cccccc'
             }
+          },
+          {
+            label: "Market Events",
+            data: eventDots,
+            type: "scatter",
+            showLine: false,
+            backgroundColor: "#ff0077",
+            pointRadius: 6,
+            pointHoverRadius: 10,
+            animations: {
+              radius: {
+                duration: 1000,
+                easing: "easeInOutBounce",
+                loop: true,
+                from: 6,
+                to: 10
+              }
+            }
           }]
         },
         options: {
@@ -197,7 +315,17 @@
               color: '#00ffc3',
               font: { size: 18 }
             },
-            tooltip: { mode: 'index', intersect: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.dataset.label === "Market Events") {
+                    const e = ctx.raw;
+                    return `📌 ${e.event} (${e.ticker}) – ${e.y}`;
+                  }
+                  return `Price: ${ctx.parsed.y}`;
+                }
+              }
+            },
             zoom: {
               pan: { enabled: true, mode: 'x', modifierKey: 'ctrl' },
               zoom: { wheel: { enabled: true }, mode: 'x' }
@@ -221,6 +349,25 @@
           onClick: () => renderLineChart()
         }
       });
+
+      document.getElementById('marketChart').onclick = (evt) => {
+        const points = marketChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+        if (points.length) {
+          const point = points[0];
+          const dataset = marketChart.data.datasets[point.datasetIndex];
+
+          if (dataset.label === "Market Events") {
+            const e = dataset.data[point.index];
+            document.getElementById("eventTitle").innerHTML = `📌 Market Event on ${e.ticker || 'Unknown'}`;
+            document.getElementById("eventBody").innerHTML = `
+              <strong>Reason:</strong> ${e.event || 'No details'}<br>
+              <strong>Price:</strong> ${e.y}<br>
+              <strong>Entry Index:</strong> ${e.x}
+            `;
+            document.getElementById("eventModal").style.display = "block";
+          }
+        }
+      };
     }
   </script>
 </body>
