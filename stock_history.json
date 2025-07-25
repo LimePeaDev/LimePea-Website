@@ -1,9 +1,8 @@
 {
     "LME": {
         "name": "Lime Energy",
-        "price": 263,
+        "price": 261,
         "history": [
-            296,
             296,
             294,
             295,
@@ -102,14 +101,14 @@
             266,
             265,
             262,
-            263
+            263,
+            261
         ]
     },
     "JUCE": {
         "name": "Jungle Juice Co.",
-        "price": 127,
+        "price": 123,
         "history": [
-            87,
             87,
             90,
             94,
@@ -208,14 +207,14 @@
             122,
             124,
             126,
-            127
+            127,
+            123
         ]
     },
     "PLMP": {
         "name": "Pulpy Lime Products",
-        "price": 388,
+        "price": 386,
         "history": [
-            408,
             412,
             414,
             415,
@@ -314,14 +313,14 @@
             395,
             392,
             388,
-            388
+            388,
+            386
         ]
     },
     "ZEST": {
         "name": "Zest Labs",
-        "price": 7,
+        "price": 6,
         "history": [
-            29,
             32,
             37,
             35,
@@ -420,14 +419,14 @@
             6,
             11,
             7,
-            7
+            7,
+            6
         ]
     },
     "FRSH": {
         "name": "FreshFizz Beverages",
-        "price": 66,
+        "price": 68,
         "history": [
-            34,
             39,
             42,
             41,
@@ -526,14 +525,14 @@
             69,
             66,
             63,
-            66
+            66,
+            68
         ]
     },
     "ACD": {
         "name": "Acidic Dynamics",
-        "price": 281,
+        "price": 278,
         "history": [
-            255,
             255,
             256,
             255,
@@ -632,14 +631,14 @@
             289,
             286,
             282,
-            281
+            281,
+            278
         ]
     },
     "GRNL": {
         "name": "GreenLeaf Organics",
         "price": 20,
         "history": [
-            44,
             46,
             43,
             47,
@@ -738,14 +737,14 @@
             20,
             20,
             20,
+            20,
             20
         ]
     },
     "LND": {
         "name": "Lemonade Ltd.",
-        "price": 11,
+        "price": 8,
         "history": [
-            1,
             1,
             3,
             4,
@@ -844,14 +843,14 @@
             17,
             15,
             13,
-            11
+            11,
+            8
         ]
     },
     "ZNG": {
         "name": "Zing Innovations",
         "price": 128,
         "history": [
-            121,
             124,
             120,
             118,
@@ -950,14 +949,14 @@
             124,
             124,
             123,
+            128,
             128
         ]
     },
     "DUCK": {
         "name": "Duck Coin",
-        "price": 245,
+        "price": 249,
         "history": [
-            237,
             235,
             235,
             234,
@@ -1056,7 +1055,8 @@
             245,
             241,
             244,
-            245
+            245,
+            249
         ]
     }
 }
